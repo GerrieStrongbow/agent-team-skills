@@ -77,6 +77,11 @@ When the feature or wave is complete:
 4. Don't merge the PR yourself unless the user says so. Integration branches usually have
    review rules and CI of their own. If review comments come back, they become a fix round:
    small ones you fix on the feature branch, bigger ones become a ticket for an implementer.
+5. One fix round at a time, and only after every automated reviewer has reported (a `--wait`
+   feedback script, or the checks page with nothing pending). Collect everything (CI, Sonar,
+   Semgrep, Greptile, people), fix it all, push once. A push made while another reviewer is
+   still running throws its result away and re-runs every check. Keep the PR a draft while
+   several pushes are unavoidable: a draft runs nothing.
 
 ## Direct implementation (the no-delegation variant)
 

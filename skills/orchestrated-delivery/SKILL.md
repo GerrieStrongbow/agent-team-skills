@@ -192,6 +192,13 @@ never get their own PR.
    feature branch, push it and open one PR into the integration branch. The description lists
    the tickets, what was verified and anything deferred. Merge the PR only when the user says
    so, because integration branches usually have their own review rules.
+6. **One push, then wait for every reviewer.** Every push re-runs the whole check set (CI,
+   SonarCloud, Semgrep, Greptile, pre-commit), which costs minutes and budget. Push once, wait
+   until every automated reviewer has reported, fix everything they raised in one commit, push
+   once more. Never push a fix for one reviewer while the others are still running, and never
+   push proof-of-failure commits. Two runs per PR is the target, three the ceiling. Catch the
+   recurring static findings locally first (complexity, repeated literals, undocumented error
+   codes, package installs without `--ignore-scripts`).
 
 ## 5. Verification culture (lead and implementers alike)
 
