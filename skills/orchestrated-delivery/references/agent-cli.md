@@ -23,6 +23,9 @@ codex exec resume <session_id> --dangerously-bypass-approvals-and-sandbox \
   -o <scratch>/review-<ticket>-r2.md - < <scratch>/rereview-<ticket>.md > <scratch>/codex-<ticket>-r2.log 2>&1
 ```
 
+`resume` takes no `-C` ("unexpected argument '-C'", exit 2, verified 21 Oct 2026): `cd` into the
+worktree first; sessions are filtered by cwd, so run it from the directory the first round used.
+
 The session id is printed near the top of the log. `-o` writes the final message (the verdict
 block). The rollout log is the full transcript:
 `~/.codex/sessions/YYYY/MM/DD/rollout-*<session_id>.jsonl`. Its timestamps are UTC; convert
@@ -50,8 +53,8 @@ Live progress: `~/.claude/projects/<project-dir-slug>/<session_id>.jsonl`.
 
 **Codex credit stall.** With no credits left, `codex exec` hangs silently (no output, almost
 no CPU) instead of erroring. The rollout's `token_count` event shows
-`"credits":{"has_credits":false}`. Kill it and tell the user; an Opus agent can review as a
-stopgap.
+`"credits":{"has_credits":false}`. Kill it, tell the user in one line, and switch to the fallback
+reviewer (SKILL.md section 3) for the rest of the session. Never wait for credits to return.
 
 **Codex finished but won't exit.** The rollout shows `task_complete` but the process idles at
 0% CPU and never flushes stdout. Get the final message from the rollout, then kill the PID:

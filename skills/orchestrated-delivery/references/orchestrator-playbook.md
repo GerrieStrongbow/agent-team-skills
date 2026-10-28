@@ -19,7 +19,7 @@ predates the ruling, the go-ahead starts with "merge the feature branch in first
 
 ## Final review (strict senior engineer)
 
-Codex has approved by now, but its approval is input, not a verdict. Read the full diff against
+The peer reviewer (Codex or the fallback) has approved by now, but its approval is input, not a verdict. Read the full diff against
 the feature branch, not the implementer's summary or Codex's. In rough priority order:
 
 1. **Correctness against the spec's invariants.** Query budgets ("one round-trip, never N"),
@@ -36,7 +36,7 @@ the feature branch, not the implementer's summary or Codex's. In rough priority 
 
 Fix small defects directly on the ticket branch with a commit message that names the review
 reason, then re-run the gates. Bouncing a one-line fix back costs a full round trip; keep
-bounce-backs for wrong-approach problems, and send those through Codex again afterwards.
+bounce-backs for wrong-approach problems, and send those through peer review again afterwards.
 
 ## Merge mechanics (from the main checkout, on the feature branch)
 
@@ -87,7 +87,7 @@ When the feature or wave is complete:
 
 For polish-scale work (styling, small refactors, layout, config), implement directly and keep
 the rest: ticket, gates, live verification, self-review, one commit per ticket on the feature
-branch. Codex review is optional here; use it when the change touches logic.
+branch. Peer review is optional here; use it when the change touches logic.
 
 Data operations (account inserts, one-off corrections, real-data backfill runs) are always
 done by the lead. Scripts go through the normal loop first; then the lead runs them against

@@ -80,7 +80,7 @@ statement: "Owned files: X, Y, Z ONLY. A concurrent agent works ticket NNN
 - [ ] Each acceptance criterion demonstrated, with the evidence named
 - [ ] Fixture protocol followed (prefix, synthetic, cleaned up)
 - [ ] Gates green; only owned files modified
-- [ ] All work committed on the ticket branch; Codex review approved
+- [ ] All work committed on the ticket branch; peer review approved (Codex or the fallback reviewer)
 ```
 
 ## Goal file (`planning/goals/NNN-slug.md`)

@@ -1,6 +1,6 @@
 ---
 name: orchestrated-delivery
-description: Deliver software as a team lead running a small team of coding agents. The session model leads (plans, delegates, does the final review, merges and opens the PR). Opus agents implement specced tickets in git worktrees, in parallel where tickets don't overlap. Codex on its latest Sol model peer-reviews each ticket before it reaches the lead. Includes the planning pipeline that makes work delegable (PRD → spec and ADRs → dependency-ordered tickets), scaled from a new project down to one significant change. Use this whenever the user asks to work "the orchestrated way" or "in an orchestrated way", to act as team lead or tech lead, to delegate implementation to Opus or other agents, to have Codex review the code, to break a feature into tickets for agents, to set up a planning directory, or to run several coding agents in parallel without them trampling each other. It applies to a new project, a feature wave, or one substantial piece of work in an existing codebase.
+description: Deliver software as a team lead running a small team of coding agents. The session model leads (plans, delegates, does the final review, merges and opens the PR). Opus agents implement specced tickets in git worktrees, in parallel where tickets don't overlap. Codex on its latest Sol model peer-reviews each ticket before it reaches the lead (a fresh Fable agent at medium effort when Codex is unavailable or not allowed). Includes the planning pipeline that makes work delegable (PRD → spec and ADRs → dependency-ordered tickets), scaled from a new project down to one significant change. Use this whenever the user asks to work "the orchestrated way" or "in an orchestrated way", to act as team lead or tech lead, to delegate implementation to Opus or other agents, to have Codex review the code, to break a feature into tickets for agents, to set up a planning directory, or to run several coding agents in parallel without them trampling each other. It applies to a new project, a feature wave, or one substantial piece of work in an existing codebase.
 ---
 
 # Orchestrated delivery
@@ -21,11 +21,13 @@ Merges without independent review produce a codebase nobody trusts.
 | Team lead (you) | Latest Fable, high effort. If the user says credits are low: latest Opus, xhigh effort | This session |
 | Implementer | Latest Opus, high effort | `Agent` tool: `model: "opus"`, `effort: "high"`, `subagent_type: "general-purpose"` |
 | Reviewer | Codex on its latest Sol model, high reasoning | `codex exec` as a background shell command |
+| Fallback reviewer | Latest Fable, medium effort, a fresh agent per ticket | `Agent` tool: `model: "fable"`, `effort: "medium"`, `subagent_type: "general-purpose"`. Used whenever Codex can't review (section 3) |
 
 Who talks to whom: the lead briefs implementers and starts Codex reviews. Codex findings go
 back to the same implementer through the lead. The implementer and Codex iterate until Codex
-approves, and then the ticket comes to the lead. Implementers and Codex never push, never open
-PRs and never merge.
+approves, and then the ticket comes to the lead. The fallback reviewer takes Codex's place in
+this loop when Codex can't review. Implementers and reviewers never push, never open PRs and
+never merge.
 
 What the lead still does directly: the survey needed to plan, decisions and rulings, data
 operations (inserts, one-off corrections, backfill runs against real data), small fixes during
@@ -45,9 +47,14 @@ and ask only about what they leave unclear.
 2. **Models.** Check your own model. If the session isn't on the expected lead model, say so
    in one line (the user switches with `/model` and `/effort`) and carry on. Read the Codex
    model from `~/.codex/config.toml` and use it if it is the newest `*-sol` id you know of. If
-   the user names a newer one, probe it first:
-   `echo 'reply ok' | codex exec --skip-git-repo-check -C /tmp -m <id> -` (a new id may need
-   `npm install -g @openai/codex@latest`).
+   the user names a newer one, use that.
+   **Then check Codex can review here at all**, once, before the first ticket. It can't when
+   the user's instructions say Codex isn't allowed for this codebase (an employer that hasn't
+   approved it), or when the probe below fails or doesn't answer within 60 seconds. Codex out
+   of credit hangs instead of erroring, hence the time limit:
+   `echo 'reply ok' | perl -e 'alarm 60; exec @ARGV' codex exec --skip-git-repo-check -C /tmp -m <id> -`
+   (a new id may need `npm install -g @openai/codex@latest`). If it can't, say so in one line
+   and use the fallback reviewer for the whole session.
 3. **Gates.** The exact test, lint and type-check commands every ticket must pass.
 
 When there is a wave plan (`planning/goals/README.md`), record the answers there so later
@@ -147,6 +154,20 @@ Write prompts to files in your scratchpad, never inline. The session id is print
 top of the log, and `-o` holds the final message. Mechanics and failure modes are in
 `references/agent-cli.md`.
 
+**When Codex can't review**, switch to the fallback reviewer at once and keep it for the rest
+of the session. That covers a failed setup check (section 0), a review that exits with an auth,
+quota, rate-limit or credit error, and a review that stalls with `"has_credits":false` in its
+rollout (`references/agent-cli.md`). **Never wait for Codex to come back.** No sleeping, polling
+or scheduled wake-ups for credits: one stalled reviewer holds up the whole wave, and a two-hour
+wait has happened before. Kill the stuck process, tell the user in one line, and carry on.
+
+The fallback reviewer is a fresh `Agent` on latest Fable at medium effort, never the
+implementer's model. What keeps the review independent is a different model from the Opus
+implementer, a fresh context, and a brief that holds only the goal, the repo rules and the diff,
+never the implementer's report or reasoning. It gets the same review prompt and returns the same
+verdict block (`references/briefs.md`); re-reviews go to the same agent with `SendMessage`.
+Everything below applies to it exactly as to Codex.
+
 Codex fixes minor issues itself and commits them. It lists substantial issues without fixing
 them, and then gives a verdict:
 
@@ -169,7 +190,7 @@ three rounds, or they disagree, read the dispute and rule. You are the tiebreake
 - Check for stray files: env files, outputs, debug scripts, scratch notes.
 
 Fix small issues yourself and commit on the ticket branch. Anything bigger goes back to the
-implementer, then through Codex again, then back to you.
+implementer, then through peer review again, then back to you.
 
 ## 4. Integration: ticket branches → feature branch → one PR
 

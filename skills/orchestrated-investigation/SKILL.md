@@ -20,7 +20,7 @@ directions, which is strong evidence, or disagree, which shows you exactly where
 |------|-------|-------------|
 | Lead (you) | Latest Fable, high effort. If the user says credits are low: latest Opus, xhigh effort | This session |
 | Investigators | Latest Opus, high effort | `Agent` tool: `model: "opus"`, `effort: "high"`, `subagent_type: "general-purpose"` |
-| Second opinion (optional) | Codex on its latest Sol model, high reasoning | `codex exec` in the background, as one more investigator or as reviewer of the fix |
+| Second opinion (optional) | Codex on its latest Sol model, high reasoning | `codex exec` in the background, as one more investigator or as reviewer of the fix. Skip it where Codex can't run or isn't allowed, and never wait for its credits |
 
 A Codex investigator is worth adding when the problem is stubborn: a different model family
 has different blind spots. Invocation and failure modes are in the orchestrated-delivery
@@ -120,7 +120,8 @@ Then fix it one of two ways:
 
 - **Small fix** (a few lines, local, obvious): run a short version of the delivery loop. The
   investigator that found it implements the fix in its worktree (it already has the context),
-  Codex reviews it with the review prompt from the orchestrated-delivery skill, you do the
+  Codex reviews it with the review prompt from the orchestrated-delivery skill (or, when Codex
+  can't, that skill's fallback reviewer: a fresh Fable agent at medium effort), you do the
   final review, then merge the worktree branch into the current branch and re-run the
   fixed-check there.
 - **Anything bigger:** turn the findings into tickets (cause, evidence, the fixed-check as a

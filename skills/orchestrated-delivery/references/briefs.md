@@ -1,14 +1,14 @@
 # Brief templates
 
 Fill these in and adapt them; delete lines that don't apply. Keep briefs self-contained, since
-neither the implementer nor Codex has seen your conversation with the user. With a full
+neither the implementer nor the reviewer has seen your conversation with the user. With a full
 planning pipeline, the filled-in implementer brief is the ticket's goal file
 (`planning/goals/NNN-slug.md`), followed by its Rulings section.
 
 ## Implementer brief (Agent tool, Opus, high effort)
 
 ```
-You are the implementer on a team. A team lead (me) planned this work. Codex will peer-review
+You are the implementer on a team. A team lead (me) planned this work. A reviewer will peer-review
 your branch when you are done, and I do the final review and merge it into the feature branch.
 
 Ticket: <ticket number and title; path to the ticket file, or the ticket inlined here>
@@ -47,7 +47,7 @@ summarize the Done-when list and your plan, and stop. I'll review the plan and s
 go-ahead." The go-ahead (`SendMessage`) lists any rulings added since, and repeats the report
 paragraph.
 
-## Codex review prompt
+## Review prompt (Codex, or the fallback reviewer as an Agent)
 
 ```
 You are a senior engineer peer-reviewing another engineer's branch before it goes to the team
@@ -83,7 +83,7 @@ GATES: <pass/fail per gate>
 ## Fix round (SendMessage to the same implementer)
 
 ```
-Codex reviewed your branch and requested changes. It also committed minor fixes (see git log),
+The reviewer looked at your branch and requested changes. It also committed minor fixes (see git log),
 so pull them into your view before editing.
 
 Findings:
@@ -93,7 +93,7 @@ Address each finding, or push back on one with your reasons if you think it is w
 the gates, commit, and report per finding: fixed (how) or disputed (why).
 ```
 
-## Codex re-review (resume the same session)
+## Re-review (Codex: resume the same session; fallback reviewer: `SendMessage` to the same agent)
 
 ```bash
 codex exec resume <session_id> --dangerously-bypass-approvals-and-sandbox \
